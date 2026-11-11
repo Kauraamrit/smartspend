@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Savings Goal • SmartSpend{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-page">
+
+    <div class="dashboard-header">
+
+        <div>
+            <h1>Savings Goal</h1>
+
+            <p>
+                Set and track your savings target.
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('dashboard') }}"
+            class="secondary-button"
+        >
+            ← Dashboard
+        </a>
+
+    </div>
+
+
+    
+<!-- Savings Goal Overview -->
+
+<div class="dashboard-card">
+
+    <div class="card-header">
+        <div>
+            <h2>Your Savings Goal</h2>
+            <p>Set a target amount you want to save.
+                {{ month_name }} {{ current_year }}.
+            </p>
+        </div>
+    </div>
+
+    <!-- Savings Progress -->
+
+    
+{% if target_amount > 0 %}
+
+    <div class="dashboard-budget-summary">
+        <div>
+            <span>Target Amount</span>
+            <strong>₹{{ "%.2f"|format(target_amount) }}</strong>
+        </div>
+
+        <div>
+            <span>Current Balance</span>
+            <strong>₹{{ "%.2f"|format(current_savings) }}</strong>
+        </div>
+
+        <div>
+            <span>Remaining</span>
+            <strong>₹{{ "%.2f"|format(remaining_amount) }}</strong>
+        </div>
+
+        <div>
+            <span>Progress</span>
+            <strong>{{ "%.1f"|format(progress_percentage) }}%</strong>
+        </div>
+    </div>
+
+    <div class="dashboard-budget-progress">
+        <div class="budget-progress">
+            <div
+                id="savings-progress-fill"
+                class="budget-progress-fill"
+                data-percentage="{{ progress_percentage }}"
+            ></div>
+        </div>
+    </div>
+
+    {% if current_savings < 0 %}
+        <p class="budget-message budget-danger">
+            Your expenses currently exceed your income.
+        </p>
+    {% elif current_savings >= target_amount and is_month_end %}
+        <p class="budget-message">
+            🎉 Congratulations! You've achieved your savings goal for {{ month_name }} {{ current_year }}!
+        </p>
+    {% elif current_savings >= target_amount %}
+        <p class="budget-message">
+            🎯 Your savings target has been reached. Keep it up until the end of the month!
+        </p>
+    {% elif progress_percentage >= 80 %}
+        <p class="budget-message">
+            🌟 Almost there! You're very close to your monthly savings goal.
+        </p>
+    {% else %}
+        <p class="budget-message">
+            Keep going! You're making progress toward your goal.
+        </p>
+    {% endif %}
+
+{% else %}
+    <p class="budget-message">
+        Set your first savings target below to start tracking progress.
+    </p>
+{% endif %}
+
+
+<div class="savings-goal-form-section">
+
+        <h3>
+            {% if target_amount > 0 %}
+                Update Savings Goal
+            {% else %}
+                Set Savings Goal
+            {% endif %}
+        </h3>
+
+        <form method="POST" class="budget-form">
+
+            <div class="form-group">
+                <label for="target_amount">Savings Target (₹)</label>
+
+                <input
+                    type="number"
+                    id="target_amount"
+                    name="target_amount"
+                    placeholder="Enter your savings target"
+                    step="0.01"
+                    min="0.01"
+                    value="{{ target_amount if target_amount > 0 else '' }}"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="primary-button">
+                Save Goal
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const progressBar = document.getElementById("savings-progress-fill");
+
+    if (!progressBar) {
+        return;
+    }
+
+    const percentage = parseFloat(progressBar.dataset.percentage) || 0;
+
+    progressBar.style.width = Math.min(Math.max(percentage, 0), 100) + "%";
+
+    if (percentage >= 100) {
+        progressBar.classList.add("over-budget");
+    }
+});
+</script>
+
+{% endblock %}

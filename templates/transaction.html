@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}Transactions • SmartSpend{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-page">
+
+    <!-- Page Header -->
+    <div class="dashboard-header">
+
+        <div>
+            <h1>Transactions</h1>
+
+            <p>
+                Track your income and expenses.
+            </p>
+        </div>
+
+        <a href="{{ url_for('dashboard') }}" class="secondary-button">
+            ← Dashboard
+        </a>
+
+    </div>
+
+
+    <!-- Transactions Card -->
+ <div class="transaction-actions">
+
+    <!-- ADD -->
+<a
+    href="{{ url_for('add_transaction') }}"
+    class="transaction-action add-action"
+    title="Add transaction"
+>
+    +
+</a>
+
+<!-- EDIT -->
+<button
+    type="button"
+    class="transaction-action edit-action"
+    id="editTransactionBtn"
+    title="Edit transaction"
+    disabled
+>
+    ✎
+</button>
+
+<!-- DELETE -->
+<button
+    type="button"
+    class="transaction-action delete-action"
+    id="deleteTransactionBtn"
+    title="Delete transaction"
+    disabled
+>
+    ×
+</button>
+
+</div>
+
+        {% if transactions %}
+
+            <div class="transaction-list">
+
+                {% for transaction in transactions %}
+
+                <div 
+                    class="transaction-row"
+                    data-transaction-id="{{ transaction['id'] }}"
+                >
+                    <!-- LEFT -->
+                    <div class="transaction-info">
+
+                        <div class="transaction-icon">
+
+                            {% if transaction["transaction_type"] == "income" %}
+                                📈
+                            {% else %}
+                                📉
+                            {% endif %}
+
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                {{ transaction["description"] or transaction["category"] }}
+                            </strong>
+
+                            <small>
+                                {{ transaction["category"] }}
+                                •
+                                {{ transaction["transaction_date"] }}
+                            </small>
+
+                        </div>
+
+                    </div>
+                <!-- RIGHT -->
+                <div class="transaction-actions">
+
+                    <div class="transaction-amount">
+
+                        {% if transaction["transaction_type"] == "income" %}
+
+                            <span class="income-text">
+                                + ₹{{ "%.2f"|format(transaction["amount"]) }}
+                            </span>
+
+                        {% else %}
+
+                            <span class="expense-text">
+                                - ₹{{ "%.2f"|format(transaction["amount"]) }}
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+                   
+                        
+                </div>
+
+            </div>
+
+
+            {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    💸
+                </div>
+
+                <h3>No transactions yet</h3>
+
+                <p>
+                    Start tracking your finances by adding
+                    your first transaction.
+                </p>
+
+                <a
+                    href="{{ url_for('add_transaction') }}"
+                    class="secondary-button"
+                >
+                    Add Your First Transaction
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    let selectedTransactionId = null;
+
+    const transactionRows =
+        document.querySelectorAll(".transaction-row");
+
+    const editButton =
+        document.getElementById("editTransactionBtn");
+
+    const deleteButton =
+        document.getElementById("deleteTransactionBtn");
+
+
+    /* --------------------------------
+       SELECT TRANSACTION
+    -------------------------------- */
+
+    transactionRows.forEach(function (row) {
+
+        row.addEventListener("click", function () {
+
+            // Remove selection from all rows
+            transactionRows.forEach(function (r) {
+                r.classList.remove("selected");
+            });
+
+            // Select this row
+            this.classList.add("selected");
+
+            // Store transaction ID
+            selectedTransactionId =
+                this.dataset.transactionId;
+
+            // Enable edit and delete
+            editButton.disabled = false;
+            deleteButton.disabled = false;
+
+        });
+
+    });
+
+
+    /* --------------------------------
+       EDIT TRANSACTION
+    -------------------------------- */
+
+    editButton.addEventListener("click", function () {
+
+        if (!selectedTransactionId) {
+            return;
+        }
+
+        window.location.href =
+            "/edit-transaction/" + selectedTransactionId;
+
+    });
+
+
+    /* --------------------------------
+       DELETE TRANSACTION
+    -------------------------------- */
+
+    deleteButton.addEventListener("click", function () {
+
+        if (!selectedTransactionId) {
+            return;
+        }
+
+        const confirmed =
+            confirm(
+                "Are you sure you want to delete this transaction?"
+            );
+
+        if (!confirmed) {
+            return;
+        }
+
+        const form =
+            document.createElement("form");
+
+        form.method = "POST";
+
+        form.action =
+            "/delete-transaction/" + selectedTransactionId;
+
+        document.body.appendChild(form);
+
+        form.submit();
+
+    });
+
+});
+
+</script>
+{% endblock %}
+

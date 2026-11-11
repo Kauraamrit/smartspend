@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+
+{% block title %}Account • SmartSpend{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-page">
+
+    <!-- Page Header -->
+
+    <div class="dashboard-header">
+
+        <div>
+            <h1>My Account</h1>
+
+            <p>
+                Manage your SmartSpend account and view your financial overview.
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('dashboard') }}"
+            class="secondary-button"
+        >
+            ← Dashboard
+        </a>
+
+    </div>
+
+
+    <!-- Profile Card -->
+
+    <div class="account-grid">
+
+        <div class="dashboard-card profile-card">
+
+            <div class="profile-header">
+
+                <div class="profile-avatar">
+                    👤
+                </div>
+
+                <div>
+                    <h2>{{ user["name"] }}</h2>
+
+                    <p>
+                        {{ user["email"] }}
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="profile-details">
+
+                <div class="profile-detail">
+
+                    <span class="detail-icon">
+                        👤
+                    </span>
+
+                    <div>
+                        <span class="detail-label">
+                            Full Name
+                        </span>
+
+                        <strong>
+                            {{ user["name"] }}
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="profile-detail">
+
+                    <span class="detail-icon">
+                        📧
+                    </span>
+
+                    <div>
+                        <span class="detail-label">
+                            Email Address
+                        </span>
+
+                        <strong>
+                            {{ user["email"] }}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Financial Overview -->
+
+        <div class="dashboard-card">
+
+            <div class="card-header">
+
+                <div>
+                    <h2>Financial Overview</h2>
+
+                    <p>
+                        Your account activity at a glance.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="account-stats">
+
+                <div class="account-stat">
+
+                    <div class="account-stat-icon income-icon">
+                        📈
+                    </div>
+
+                    <div>
+                        <span>
+                            Total Income
+                        </span>
+
+                        <strong>
+                            ₹{{ "%.2f"|format(total_income) }}
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="account-stat">
+
+                    <div class="account-stat-icon expense-icon">
+                        📉
+                    </div>
+
+                    <div>
+                        <span>
+                            Total Expenses
+                        </span>
+
+                        <strong>
+                            ₹{{ "%.2f"|format(total_expenses) }}
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="account-stat">
+
+                    <div class="account-stat-icon balance-icon">
+                        💰
+                    </div>
+
+                    <div>
+                        <span>
+                            Current Balance
+                        </span>
+
+                        <strong>
+                            ₹{{ "%.2f"|format(balance) }}
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="account-stat">
+
+                    <div class="account-stat-icon goal-icon">
+                        🧾
+                    </div>
+
+                    <div>
+                        <span>
+                            Transactions
+                        </span>
+
+                        <strong>
+                            {{ transaction_count }}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Account Actions -->
+
+    <div class="dashboard-card account-actions-card">
+
+        <div class="card-header">
+
+            <div>
+                <h2>Account Settings</h2>
+
+                <p>
+                    Manage your account preferences.
+                </p>
+            </div>
+
+        </div>
+
+
+
+            <a
+                href="{{ url_for('edit_profile') }}"
+                class="account-action"
+            >
+                <span class="action-icon">
+                    ✏️
+                </span>
+
+    <div>
+        <strong>Edit Profile</strong>
+
+        <span>
+            Update your personal information
+        </span>
+    </div>
+</a>
+
+               <a
+    href="{{ url_for('change_password') }}"
+    class="account-action"
+>
+    <span class="action-icon">
+        🔐
+    </span>
+
+    <div>
+        <strong>Change Password</strong>
+
+        <span>
+            Update your account password
+        </span>
+    </div>
+</a>
+
+            <a
+                href="{{ url_for('logout') }}"
+                class="account-action logout-action"
+            >
+
+                <span class="action-icon">
+                    🚪
+                </span>
+
+                <div>
+                    <strong>Logout</strong>
+
+                    <span>
+                        Sign out of your SmartSpend account
+                    </span>
+                </div>
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Account Security -->
+
+    <div class="tip-card">
+
+        <div class="tip-icon">
+            🔒
+        </div>
+
+        <div>
+
+            <h3>
+                Your account is protected
+            </h3>
+
+            <p>
+                SmartSpend stores your password securely using
+                password hashing rather than storing your actual password.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

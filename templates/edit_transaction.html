@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Transaction • SmartSpend{% endblock %}
+
+{% block content %}
+
+<div class="transaction-page">
+
+    <div class="transaction-card">
+
+        <!-- Header -->
+
+        <div class="transaction-header">
+
+            <div>
+                <h1>Edit Transaction</h1>
+
+                <p>
+                    Update the details of your transaction.
+                </p>
+            </div>
+
+        </div>
+
+
+        <!-- Edit Form -->
+
+        <form
+            method="POST"
+            action="{{ url_for('edit_transaction', transaction_id=transaction['id']) }}"
+            class="transaction-form"
+        >
+
+            <!-- Transaction Type -->
+
+            <div class="form-group">
+
+                <label for="transaction_type">
+                    Transaction Type
+                </label>
+
+                <select
+                    id="transaction_type"
+                    name="transaction_type"
+                    required
+                >
+
+                    <option
+                        value="income"
+                        {% if transaction['transaction_type'] == 'income' %}
+                            selected
+                        {% endif %}
+                    >
+                        Income
+                    </option>
+
+                    <option
+                        value="expense"
+                        {% if transaction['transaction_type'] == 'expense' %}
+                            selected
+                        {% endif %}
+                    >
+                        Expense
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Amount -->
+
+            <div class="form-group">
+
+                <label for="amount">
+                    Amount
+                </label>
+
+                <div class="amount-input">
+
+                    <span>₹</span>
+
+                    <input
+                        type="number"
+                        id="amount"
+                        name="amount"
+                        step="0.01"
+                        min="0.01"
+                        value="{{ '%.2f'|format(transaction['amount']) }}"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- Category -->
+
+            <div class="form-group">
+
+                <label for="category">
+                    Category
+                </label>
+
+                <select
+                    id="category"
+                    name="category"
+                    required
+                >
+
+                    <option value="Food"
+                        {% if transaction['category'] == 'Food' %}selected{% endif %}>
+                        Food
+                    </option>
+
+                    <option value="Transport"
+                        {% if transaction['category'] == 'Transport' %}selected{% endif %}>
+                        Transport
+                    </option>
+
+                    <option value="Shopping"
+                        {% if transaction['category'] == 'Shopping' %}selected{% endif %}>
+                        Shopping
+                    </option>
+
+                    <option value="Bills"
+                        {% if transaction['category'] == 'Bills' %}selected{% endif %}>
+                        Bills
+                    </option>
+
+                    <option value="Entertainment"
+                        {% if transaction['category'] == 'Entertainment' %}selected{% endif %}>
+                        Entertainment
+                    </option>
+
+                    <option value="Education"
+                        {% if transaction['category'] == 'Education' %}selected{% endif %}>
+                        Education
+                    </option>
+
+                    <option value="Salary"
+                        {% if transaction['category'] == 'Salary' %}selected{% endif %}>
+                        Salary
+                    </option>
+
+                    <option value="Freelance"
+                        {% if transaction['category'] == 'Freelance' %}selected{% endif %}>
+                        Freelance
+                    </option>
+
+                    <option value="Other"
+                        {% if transaction['category'] == 'Other' %}selected{% endif %}>
+                        Other
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Description -->
+
+            <div class="form-group">
+
+                <label for="description">
+                    Description
+                    <span>(Optional)</span>
+                </label>
+
+                <textarea
+                    id="description"
+                    name="description"
+                    rows="4"
+                    placeholder="What was this transaction for?"
+                >{{ transaction['description'] or '' }}</textarea>
+
+            </div>
+
+
+            <!-- Date -->
+
+            <div class="form-group">
+
+                <label for="transaction_date">
+                    Date
+                </label>
+
+                <input
+                    type="date"
+                    id="transaction_date"
+                    name="transaction_date"
+                    value="{{ transaction['transaction_date'] }}"
+                    required
+                >
+
+            </div>
+
+
+            <!-- Buttons -->
+
+            <div class="form-actions">
+
+                <a
+                    href="{{ url_for('transactions') }}"
+                    class="cancel-btn"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="save-btn"
+                >
+                    Save Changes
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

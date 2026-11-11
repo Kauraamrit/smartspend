@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}Budget • SmartSpend{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-page">
+
+    <div class="dashboard-header">
+
+        <div>
+            <h1>Monthly Budget</h1>
+
+            <p>
+                Set and track your monthly spending budget.
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('dashboard') }}"
+            class="secondary-button"
+        >
+            ← Dashboard
+        </a>
+
+    </div>
+
+
+    <!-- Budget Overview -->
+
+    <div class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+                <h2>Budget Overview</h2>
+
+                <p>
+                    Your spending summary for this month.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="budget-summary">
+
+
+            <!-- Monthly Budget -->
+
+            <div class="budget-stat">
+
+                <span class="budget-stat-label">
+                    Monthly Budget
+                </span>
+
+                <strong>
+                    ₹{{ "%.2f"|format(monthly_budget) }}
+                </strong>
+
+            </div>
+
+
+            <!-- Total Spent -->
+
+            <div class="budget-stat">
+
+                <span class="budget-stat-label">
+                    Spent This Month
+                </span>
+
+                <strong>
+                    ₹{{ "%.2f"|format(total_spent) }}
+                </strong>
+
+            </div>
+
+
+            <!-- Remaining -->
+
+            <div class="budget-stat">
+
+                <span class="budget-stat-label">
+                    Remaining
+                </span>
+
+                <strong
+                    class="{% if remaining < 0 %}budget-danger{% endif %}"
+                >
+                    ₹{{ "%.2f"|format(remaining) }}
+                </strong>
+
+            </div>
+
+
+            <!-- Percentage -->
+
+            <div class="budget-stat">
+
+                <span class="budget-stat-label">
+                    Budget Used
+                </span>
+
+                <strong>
+                    {{ "%.1f"|format(percentage_used) }}%
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- Progress Bar -->
+
+        <div class="budget-progress-section">
+
+            <div class="budget-progress-header">
+
+                <span>
+                    Spending Progress
+                </span>
+
+                <span>
+                    {{ "%.1f"|format(percentage_used) }}%
+                </span>
+
+            </div>
+
+
+            <div class="budget-progress">
+
+    <div
+        id="budget-progress-fill"
+        class="budget-progress-fill
+        {% if percentage_used >= 100 %}
+            over-budget
+        {% elif percentage_used >= 80 %}
+            warning
+        {% endif %}"
+        data-percentage="{{ percentage_used }}"
+    ></div>
+
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const progressBar =
+            document.getElementById("budget-progress-fill");
+
+        if (progressBar) {
+
+            const percentage =
+                parseFloat(progressBar.dataset.percentage);
+
+            progressBar.style.width =
+                Math.min(percentage, 100) + "%";
+        }
+
+    });
+</script>
+
+
+            {% if percentage_used >= 100 %}
+
+                <p class="budget-message budget-danger">
+                    ⚠️ You have exceeded your monthly budget.
+                </p>
+
+            {% elif percentage_used >= 80 %}
+
+                <p class="budget-message budget-warning">
+                    ⚠️ You are close to reaching your monthly budget.
+                </p>
+
+            {% else %}
+
+                <p class="budget-message">
+                    You're within your monthly spending limit.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- Set / Update Budget -->
+
+    <div class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <h2>
+                    {% if monthly_budget > 0 %}
+                        Update Your Budget
+                    {% else %}
+                        Set Your Budget
+                    {% endif %}
+                </h2>
+
+                <p>
+                    Choose how much you want to spend this month.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="POST"
+            class="budget-form"
+        >
+
+            <div class="form-group">
+
+                <label for="budget">
+                    Monthly Budget
+                </label>
+
+                <input
+                    type="number"
+                    id="budget"
+                    name="budget"
+                    placeholder="Enter your budget"
+                    step="0.01"
+                    min="0"
+                    value="{% if monthly_budget > 0 %}{{ monthly_budget }}{% endif %}"
+                    required
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                {% if monthly_budget > 0 %}
+                    Update Budget
+                {% else %}
+                    Set Budget
+                {% endif %}
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

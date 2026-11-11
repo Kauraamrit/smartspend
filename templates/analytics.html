@@ -1,0 +1,440 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics • SmartSpend{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-page">
+
+    <!-- Page Header -->
+
+    
+<div class="dashboard-header">
+
+    <div>
+        <h1>Financial Analytics</h1>
+        <p>
+            Understand your income, expenses, and spending habits.
+        </p>
+    </div>
+
+    <div class="analytics-header-actions">
+
+        <form method="GET"
+              action="{{ url_for('analytics') }}"
+              class="analytics-month-filter">
+
+            <label for="month">Select month</label>
+
+            <input
+                type="month"
+                id="month"
+                name="month"
+                value="{{ selected_month }}"
+                required
+            >
+
+            <button type="submit" class="primary-button">
+                Apply
+            </button>
+
+        </form>
+
+        <a
+            href="{{ url_for('dashboard') }}"
+            class="secondary-button"
+        >
+            ← Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+
+
+    <!-- Financial Summary -->
+
+    <div class="stats-grid">
+
+        <!-- Balance -->
+
+        <div class="stat-card">
+
+            <div class="stat-icon balance-icon">
+                💰
+            </div>
+
+            <div>
+
+                <p class="stat-label">
+                    Total Balance
+                </p>
+
+                <h2>
+                    ₹{{ "%.2f"|format(balance) }}
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <!-- Income -->
+
+        <div class="stat-card">
+
+            <div class="stat-icon income-icon">
+                📈
+            </div>
+
+            <div>
+
+                <p class="stat-label">
+                    Total Income
+                </p>
+
+                <h2>
+                    ₹{{ "%.2f"|format(total_income) }}
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <!-- Expenses -->
+
+        <div class="stat-card">
+
+            <div class="stat-icon expense-icon">
+                📉
+            </div>
+
+            <div>
+
+                <p class="stat-label">
+                    Total Expenses
+                </p>
+
+                <h2>
+                    ₹{{ "%.2f"|format(total_expenses) }}
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <!-- Transactions -->
+
+        <div class="stat-card">
+
+            <div class="stat-icon goal-icon">
+                🧾
+            </div>
+
+            <div>
+
+                <p class="stat-label">
+                    Transactions
+                </p>
+
+                <h2>
+                    {{ transaction_count }}
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Analytics Grid -->
+
+    <div class="dashboard-grid">
+
+
+<!-- Expense Breakdown -->
+
+<div class="dashboard-card">
+
+    <div class="card-header">
+
+        <div>
+
+            <h2>
+                Expense Breakdown
+            </h2>
+
+            <p>
+                Where your money is going
+            </p>
+
+        </div>
+
+    </div>
+
+
+    {% if category_expenses %}
+
+        <div class="chart-container">
+            <canvas id="expenseChart"></canvas>
+        </div>
+
+        <div class="analytics-list">
+
+            {% for category in category_expenses %}
+
+                <div class="analytics-row">
+
+                    
+        <div class="analytics-category-info">
+            <span class="analytics-category">
+                {{ category["category"] }}
+            </span>
+
+            <span class="analytics-percentage">
+                {{ "%.1f"|format(
+                    category["total"] / total_expenses * 100
+                    if total_expenses > 0 else 0
+                ) }}%
+            </span>
+        </div>
+
+        <div class="analytics-category-bar">
+            <div
+                class="analytics-category-bar-fill expense-bar-fill"
+                data-percentage="{{ (category['total'] / total_expenses * 100) if total_expenses > 0 else 0 }};"
+            ></div>
+        </div>
+
+
+                    <strong>
+                        ₹{{ "%.2f"|format(category["total"]) }}
+                    </strong>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                📊
+            </div>
+
+            <h3>
+                No expense data yet
+            </h3>
+
+            <p>
+                Add some expense transactions to see
+                your spending breakdown.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+        <!-- Income Breakdown -->
+
+        <div class="dashboard-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Income Breakdown
+                    </h2>
+
+                    <p>
+                        Where your income comes from
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            {% if category_income %}
+
+                <div class="analytics-list">
+
+                    
+{% for category in category_income %}
+    <div class="analytics-row">
+        <div class="analytics-category-info">
+            <span class="analytics-category">
+                {{ category["category"] }}
+            </span>
+
+            <span class="analytics-percentage">
+                {{ "%.1f"|format(
+                    category["total"] / total_income * 100
+                    if total_income > 0 else 0
+                ) }}%
+            </span>
+        </div>
+        
+<div class="analytics-category-bar">
+    <div
+        class="analytics-category-bar-fill income-bar-fill"
+        data-percentage=" {{ (category['total'] / total_income * 100) if total_income > 0 else 0 }};"
+    ></div>
+</div>
+
+
+        <strong>
+            ₹{{ "%.2f"|format(category["total"]) }}
+        </strong>
+    </div>
+{% endfor %}
+
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        💰
+                    </div>
+
+                    <h3>
+                        No income data yet
+                    </h3>
+
+                    <p>
+                        Add an income transaction to see
+                        your income breakdown.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- Spending Summary -->
+
+    <div class="tip-card">
+
+        <div class="tip-icon">
+            💡
+        </div>
+
+        <div>
+
+            <h3>
+                SmartSpend Insight
+            </h3>
+
+            {% if total_income > 0 %}
+
+                <p>
+                    You have earned
+                    ₹{{ "%.2f"|format(total_income) }}
+                    and spent
+                    ₹{{ "%.2f"|format(total_expenses) }}.
+                    Your current balance is
+                    ₹{{ "%.2f"|format(balance) }}.
+                </p>
+
+            {% else %}
+
+                <p>
+                    Start adding your income and expenses
+                    to receive personalized financial insights.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Expense Chart -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script id="expense-data" type="application/json">
+    {{ category_expenses | tojson }}
+</script>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    // Set percentage bar widths
+    document.querySelectorAll(".analytics-category-bar-fill")
+        .forEach(function (bar) {
+            const percentage = parseFloat(bar.dataset.percentage) || 0;
+
+            bar.style.width =
+                Math.min(Math.max(percentage, 0), 100) + "%";
+        });
+
+    // Load expense chart data
+    const expenseDataElement =
+        document.getElementById("expense-data");
+
+    if (!expenseDataElement) {
+        return;
+    }
+
+    const expenseData =
+        JSON.parse(expenseDataElement.textContent);
+
+    const expenseLabels =
+        expenseData.map(item => item.category);
+
+    const expenseValues =
+        expenseData.map(item => item.total);
+
+    const expenseChartElement =
+        document.getElementById("expenseChart");
+
+    if (expenseChartElement && expenseLabels.length > 0) {
+        new Chart(expenseChartElement, {
+            type: "doughnut",
+            data: {
+                labels: expenseLabels,
+                datasets: [{
+                    data: expenseValues
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: "bottom"
+                    }
+                }
+            }
+        });
+    }
+
+});
+</script>
+
+
+{% endblock %}
+

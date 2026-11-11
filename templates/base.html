@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}SmartSpend{% endblock %}</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+        <!-- FLASH MESSAGES -->
+    <div class="flash-container">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% if messages %}
+
+                <div class="flash-container">
+
+                    {% for category, message in messages %}
+
+                        <div class="flash-message {{ category }}">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+        {% endwith %}
+
+    </div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+
+        <a href="{{ url_for('home') }}" class="brand">
+            <span class="brand-icon">💰</span>
+            <span>SmartSpend</span>
+        </a>
+
+        <div class="nav-links">
+
+            {% if session.get('user_id') %}
+
+                <a href="{{ url_for('dashboard') }}">
+                    Dashboard
+                </a>
+
+                <a href="{{ url_for('transactions') }}">
+                    Transactions
+                </a>
+
+                <a href="{{ url_for('analytics') }}">
+                    Analytics
+                </a>
+                <a href="{{ url_for('budget') }}">Budget</a>
+
+                <a href="{{ url_for('account') }}">
+                    Account
+                </a>
+
+                <a href="{{ url_for('logout') }}" class="logout-btn">
+                    Logout
+                </a>
+
+            {% else %}
+
+                <a href="{{ url_for('login') }}">
+                    Login
+                </a>
+
+                <a href="{{ url_for('register') }}" class="nav-button">
+                    Create Account
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </nav>
+
+
+
+
+
+    <!-- MAIN CONTENT -->
+    <main>
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+
+    <!-- FOOTER -->
+    <footer>
+
+        <p>
+            © 2026 SmartSpend
+            <span>•</span>
+            Personal Finance Management System
+        </p>
+
+    </footer>
+    <script>
+        setTimeout(function () {
+
+            const messages = document.querySelectorAll(".flash-message");
+ 
+            messages.forEach(function (message) {
+
+                message.classList.add("hide");
+
+                setTimeout(function () {
+                    message.remove();
+                }, 400);
+
+            });
+
+        }, 3000);
+    </script>
+</body>
+
+</html>

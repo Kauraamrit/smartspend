@@ -1,0 +1,511 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard • SmartSpend{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-page">
+
+    <!-- Welcome Section -->
+    <div class="dashboard-header">
+
+        <div>
+            <h1>Welcome {{ session.get('user_name', 'User') }} 👋</h1>
+
+            <p>
+                Here's an overview of your finances.
+            </p>
+        </div>
+
+        <a href="{{ url_for('transactions') }}" class="primary-button">
+            + Add Transaction
+        </a>
+
+    </div>
+
+
+<!-- Financial Summary -->
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+
+        <div class="stat-icon balance-icon">
+            💰
+        </div>
+
+        <div>
+            <p class="stat-label">Total Balance</p>
+        
+            <h2>
+                ₹{{ "%.2f"|format(total_balance) }}
+            </h2>
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon income-icon">
+            📈
+        </div>
+
+        <div>
+            <p class="stat-label">Total Income</p>
+
+            <h2>
+                ₹{{ "%.2f"|format(total_income) }}
+            </h2>
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon expense-icon">
+            📉
+        </div>
+
+        <div>
+            <p class="stat-label">Total Expenses</p>
+
+            <h2>
+                ₹{{ "%.2f"|format(total_expenses) }}
+            </h2>
+        </div>
+
+    </div>
+
+    <a
+        href="{{ url_for('savings_goal') }}"
+        class="stat-card"
+    >
+        <div class="stat-icon goal-icon">
+            🎯
+        </div>
+
+        <div>
+            <p class="stat-label">Savings Goal</p>
+            <h2>₹{{ "%.2f"|format(savings_goal) }}</h2>
+        </div>
+    </a>
+
+</div>
+<!-- Monthly Budget -->
+
+<div class="dashboard-card dashboard-budget-card">
+
+    <div class="card-header">
+
+        <div>
+            <h2>Monthly Budget</h2>
+            <p>Your spending progress for this month</p>
+        </div>
+
+        <a href="{{ url_for('budget') }}">
+            View Budget
+        </a>
+
+    </div>
+
+
+    <div class="dashboard-budget-summary">
+
+        <div>
+            <span>Budget</span>
+            <strong>
+                ₹{{ "%.2f"|format(monthly_budget) }}
+            </strong>
+        </div>
+
+        <div>
+            <span>Spent</span>
+            <strong>
+                ₹{{ "%.2f"|format(total_spent) }}
+            </strong>
+        </div>
+
+        <div>
+            <span>Remaining</span>
+            <strong
+                class="{% if remaining < 0 %}budget-negative{% endif %}"
+            >
+                ₹{{ "%.2f"|format(remaining) }}
+            </strong>
+        </div>
+
+        <div>
+            <span>Used</span>
+            <strong>
+                {{ "%.1f"|format(percentage_used) }}%
+            </strong>
+        </div>
+
+    </div>
+
+
+ <div class="dashboard-budget-progress">
+
+    <div class="budget-progress">
+
+        <div
+            id="dashboard-budget-progress-fill"
+            class="budget-progress-fill"
+            data-percentage="{{ percentage_used }}"
+        ></div>
+
+    </div>
+
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const progressBar =
+            document.getElementById(
+                "dashboard-budget-progress-fill"
+            );
+
+        if (!progressBar) {
+            return;
+        }
+
+        const percentage =
+            parseFloat(
+                progressBar.dataset.percentage
+            ) || 0;
+
+        const displayPercentage =
+            Math.min(percentage, 100);
+
+        progressBar.style.width =
+            displayPercentage + "%";
+
+        if (percentage >= 100) {
+
+            progressBar.classList.add(
+                "over-budget"
+            );
+
+        } else if (percentage >= 80) {
+
+            progressBar.classList.add(
+                "warning"
+            );
+
+        }
+
+    });
+</script>
+
+
+    {% if percentage_used >= 100 %}
+
+        <p class="budget-message budget-danger">
+            🔴 You are ₹{{ "%.2f"|format(-remaining) }}
+            over your monthly budget.
+        </p>
+
+    {% elif percentage_used >= 80 %}
+
+        <p class="budget-message budget-warning">
+            ⚠️ You are close to reaching your monthly budget.
+        </p>
+
+    {% else %}
+
+        <p class="budget-message">
+            You're within your monthly spending limit.
+        </p>
+
+    {% endif %}
+
+</div>
+
+    <!-- Main Dashboard Grid -->
+
+    <div class="dashboard-grid">
+
+
+  <!-- Recent Transactions -->
+
+<div class="dashboard-card">
+
+    <div class="card-header">
+
+        <div>
+            <h2>Recent Transactions</h2>
+            <p>Your latest financial activity</p>
+        </div>
+
+        <a href="{{ url_for('transactions') }}">
+            View All
+        </a>
+
+    </div>
+
+
+    {% if transactions %}
+
+        <div class="monthly-transactions">
+
+            <!-- Current Month Header -->
+
+            <div class="month-header">
+
+                <div>
+                    <strong>
+                        {{ current_month_name }}
+                        {{ current_year }}
+                    </strong>
+                </div>
+
+                <span>
+                    {{ transactions|length }}
+                    transaction{% if transactions|length != 1 %}s{% endif %}
+                </span>
+
+            </div>
+
+
+            <!-- Transactions -->
+
+            <div class="transaction-list">
+
+                {% for transaction in transactions %}
+
+                    <div class="transaction-row">
+
+                        <div class="transaction-info">
+
+                            <div class="transaction-date">
+
+                                <strong>
+                                    {{ transaction["day"] }}
+                                </strong>
+
+                                <small>
+                                    {{ current_month_name[:3] }}
+                                </small>
+
+                            </div>
+
+
+                            <div class="transaction-icon">
+                                {% if transaction["transaction_type"] == "income" %}
+                                    📈
+                                {% else %}
+                                    📉
+                                {% endif %}
+                            </div>
+
+
+                            <div>
+
+                                <strong>
+                                    {{ transaction["description"] }}
+                                </strong>
+
+                                <small>
+                                    {{ transaction["category"] }}
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            class="transaction-amount
+                            {% if transaction['transaction_type'] == 'income' %}
+                                income
+                            {% else %}
+                                expense
+                            {% endif %}"
+                        >
+
+                            {% if transaction["transaction_type"] == "income" %}
+                                + ₹{{ "%.2f"|format(transaction["amount"]) }}
+                            {% else %}
+                                - ₹{{ "%.2f"|format(transaction["amount"]) }}
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+
+    {% else %}
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                💸
+            </div>
+
+            <h3>No transactions this month</h3>
+
+            <p>
+                Start tracking your finances by adding
+                your first transaction.
+            </p>
+
+            <a
+                href="{{ url_for('add_transaction') }}"
+                class="secondary-button"
+            >
+                Add Transaction
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+        <!-- Quick Actions -->
+
+        <div class="dashboard-card">
+
+            <div class="card-header">
+
+                <div>
+                    <h2>Quick Actions</h2>
+                    <p>Manage your finances</p>
+                </div>
+
+            </div>
+
+
+            <div class="quick-actions">
+
+                <a
+                    href="{{ url_for('transactions') }}"
+                    class="action-card"
+                >
+
+                    <div class="action-icon">
+                        ➕
+                    </div>
+
+                    <div>
+                        <strong>Add Transaction</strong>
+
+                        <span>
+                            Record income or expense
+                        </span>
+                    </div>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('analytics') }}"
+                    class="action-card"
+                >
+
+                    <div class="action-icon">
+                        📊
+                    </div>
+
+                    <div>
+                        <strong>View Analytics</strong>
+
+                        <span>
+                            Understand your spending
+                        </span>
+                    </div>
+
+                </a>
+                <a
+                    href="{{ url_for('budget') }}"
+                    class="action-card"
+                >
+                    <div class="action-icon">
+                        💰
+                    </div>
+
+                    <div>
+                        <strong>Budget</strong>
+ 
+                        <span>
+                            Set and track your monthly budget
+                        </span>
+                    </div>
+                </a>
+                <a
+                    href="{{ url_for('savings_goal') }}"
+                    class="action-card"
+                >
+                    <div class="action-icon">
+                        🎯
+                    </div>
+
+                    <div>
+                        <strong>Savings Goal</strong>
+
+                        <span>
+                            Set and track your savings target
+                        </span>
+                    </div>
+                </a>
+                <a
+                    href="{{ url_for('account') }}"
+                    class="action-card"
+                >
+
+                    <div class="action-icon">
+                        👤
+                    </div>
+
+                    <div>
+                        <strong>Account</strong>
+
+                        <span>
+                            Manage your profile
+                        </span>
+                    </div>
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- Financial Tip -->
+
+    <div class="tip-card">
+
+        <div class="tip-icon">
+            💡
+        </div>
+
+        <div>
+
+            <h3>SmartSpend Tip</h3>
+
+            <p>
+                Track your expenses regularly to understand
+                where your money is going and make better
+                financial decisions.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
